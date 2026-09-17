@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Reservas de Eventos — Casa Rios</title>
+<link rel="icon" href="images/logo-casa-rios.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#191714;--paper:#f7f2e8;--terra:#a94f36;--green:#24352b;--line:rgba(25,23,20,.18);--white:#fffaf0}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif}
+a{color:inherit}
+.serif{font-family:'Playfair Display',serif;font-weight:400}
+
+.nav{padding:18px 4vw;display:flex;align-items:center;justify-content:space-between;background:#171513;color:#fff}
+.nav img{height:40px;display:block}
+.nav .right{display:flex;align-items:center;gap:16px;font-size:12px}
+.nav button{background:none;border:1px solid #ffffff40;color:#fff;padding:8px 16px;border-radius:999px;font-family:inherit;font-size:11px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.nav button:hover{border-color:#fff}
+
+#loginView{max-width:380px;margin:110px auto;padding:0 20px}
+#loginView h1{font-size:32px;margin:0 0 8px}
+#loginView p{color:#6b6255;font-size:13px;margin:0 0 30px}
+.field{margin-bottom:16px}
+label{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#806c57;margin-bottom:8px}
+input{width:100%;padding:13px 16px;border-radius:10px;border:1px solid var(--line);background:var(--white);font-family:inherit;font-size:14px}
+input:focus{outline:none;border-color:var(--terra)}
+.btn{width:100%;padding:14px;border-radius:999px;border:1px solid var(--ink);background:var(--ink);color:#fff;font-family:inherit;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+.btn:hover{background:var(--terra);border-color:var(--terra)}
+.error{color:var(--terra);font-size:13px;margin-top:14px;display:none}
+.error.show{display:block}
+
+#appView{display:none;padding:30px 4vw 80px}
+.summary{display:flex;gap:14px;margin-bottom:26px;flex-wrap:wrap}
+.stat{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:16px 22px;min-width:130px}
+.stat b{display:block;font-size:26px;font-family:'Playfair Display',serif}
+.stat span{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#8a8072}
+
+table{width:100%;border-collapse:collapse;background:var(--white);border-radius:12px;overflow:hidden;font-size:13px}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#8a8072;background:#efe7d8}
+tr:last-child td{border-bottom:none}
+.status-select{padding:6px 10px;border-radius:8px;border:1px solid var(--line);font-family:inherit;font-size:12px;background:var(--white)}
+.status-novo{color:var(--terra);font-weight:600}
+.status-confirmado{color:var(--green);font-weight:600}
+.status-cancelado{color:#8a8072}
+.muted{color:#8a8072;font-size:12px}
+.loading,.empty{text-align:center;padding:60px 0;color:#8a8072}
+.table-wrap{overflow-x:auto}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a href="index.html"><img src="images/logo-casa-rios.svg" alt="Casa Rios"></a>
+  <div class="right" id="navRight"></div>
+</nav>
+
+<div id="loginView">
+  <h1 class="serif">Painel de eventos</h1>
+  <p>Entre com sua conta para ver as solicitações.</p>
+  <form id="loginForm">
+    <div class="field">
+      <label for="loginEmail">Email</label>
+      <input type="email" id="loginEmail" required>
+    </div>
+    <div class="field">
+      <label for="loginPassword">Senha</label>
+      <input type="password" id="loginPassword" required>
+    </div>
+    <button class="btn" type="submit">Entrar</button>
+    <p class="error" id="loginError">Email ou senha incorretos.</p>
+  </form>
+</div>
+
+<div id="appView">
+  <div class="summary" id="summary"></div>
+  <div class="table-wrap">
+    <table id="table" style="display:none">
+      <thead>
+        <tr>
+          <th>Recebido</th>
+          <th>Cliente</th>
+          <th>Evento</th>
+          <th>Data / Horário</th>
+          <th>Pessoas</th>
+          <th>Bebidas</th>
+          <th>Telão</th>
+          <th>Restrição</th>
+          <th>Observação</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <p class="loading" id="loadingMsg">Carregando…</p>
+    <p class="empty" id="emptyMsg" style="display:none">Nenhuma solicitação de evento ainda.</p>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const sb = createClient(
+  'https://inffrqoxfkgsgdxnxlss.supabase.co',
+  'sb_publishable_p0WfBZ7-ZtM3bZZDZeiplg_rZ0SjZhk'
+);
+
+const loginView = document.getElementById('loginView');
+const appView = document.getElementById('appView');
+const navRight = document.getElementById('navRight');
+const loginForm = document.getElementById('loginForm');
+const loginError = document.getElementById('loginError');
+
+function fmtDate(d){
+  const [y,m,day] = d.split('-');
+  return `${day}/${m}/${y}`;
+}
+function fmtDateTime(iso){
+  const d = new Date(iso);
+  return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+}
+
+async function loadRequests(){
+  const table = document.getElementById('table');
+  const tbody = document.getElementById('tbody');
+  const loadingMsg = document.getElementById('loadingMsg');
+  const emptyMsg = document.getElementById('emptyMsg');
+  const summary = document.getElementById('summary');
+
+  const { data, error } = await sb
+    .from('casa_rios_event_requests')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  loadingMsg.style.display = 'none';
+
+  if (error || !data || !data.length){
+    emptyMsg.style.display = 'block';
+    summary.innerHTML = '';
+    return;
+  }
+
+  const novos = data.filter(r => r.status === 'novo').length;
+  summary.innerHTML = `
+    <div class="stat"><b>${data.length}</b><span>Total de pedidos</span></div>
+    <div class="stat"><b>${novos}</b><span>Novos</span></div>
+  `;
+
+  table.style.display = 'table';
+  tbody.innerHTML = data.map(r => `
+    <tr data-id="${r.id}">
+      <td class="muted">${fmtDateTime(r.created_at)}</td>
+      <td><b>${r.nome}</b><br><span class="muted">${r.email}<br>${r.celular}</span></td>
+      <td>${r.tipo_evento}</td>
+      <td>${fmtDate(r.data_evento)}<br><span class="muted">${r.horario}</span></td>
+      <td>${r.quantidade_pessoas}</td>
+      <td>${r.opcoes_bebida}</td>
+      <td>${r.telao ? 'Sim' : 'Não'}</td>
+      <td>${r.restricao_alimentar || '—'}</td>
+      <td style="max-width:220px">${r.observacao || '—'}</td>
+      <td>
+        <select class="status-select status-${r.status}">
+          <option value="novo" ${r.status==='novo'?'selected':''}>Novo</option>
+          <option value="confirmado" ${r.status==='confirmado'?'selected':''}>Confirmado</option>
+          <option value="cancelado" ${r.status==='cancelado'?'selected':''}>Cancelado</option>
+        </select>
+      </td>
+    </tr>
+  `).join('');
+
+  tbody.querySelectorAll('.status-select').forEach(sel => {
+    sel.addEventListener('change', async (e) => {
+      const id = e.target.closest('tr').dataset.id;
+      const newStatus = e.target.value;
+      e.target.className = `status-select status-${newStatus}`;
+      await sb.from('casa_rios_event_requests').update({ status: newStatus }).eq('id', id);
+    });
+  });
+}
+
+function showApp(){
+  loginView.style.display = 'none';
+  appView.style.display = 'block';
+  navRight.innerHTML = `<span>${currentEmail}</span><button id="logoutBtn">Sair</button>`;
+  document.getElementById('logoutBtn').onclick = async () => {
+    await sb.auth.signOut();
+    location.reload();
+  };
+  loadRequests();
+}
+
+let currentEmail = '';
+
+async function checkSession(){
+  const { data } = await sb.auth.getSession();
+  if (data.session){
+    currentEmail = data.session.user.email;
+    showApp();
+  }
+}
+
+loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  loginError.classList.remove('show');
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  if (error || !data.session){
+    loginError.classList.add('show');
+    return;
+  }
+  currentEmail = email;
+  showApp();
+});
+
+checkSession();
+</script>
+</body>
+</html>

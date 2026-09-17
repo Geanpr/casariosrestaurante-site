@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Solicite um evento na Casa Rios — Pinheiros, São Paulo.">
+<title>Realizar um evento — Casa Rios</title>
+<link rel="icon" href="images/logo-casa-rios.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#191714;--cream:#f1eadc;--paper:#f7f2e8;--terra:#a94f36;--green:#24352b;--line:rgba(25,23,20,.18);--white:#fffaf0}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif}
+a{color:inherit;text-decoration:none}
+img{display:block;width:100%;height:100%;object-fit:contain}
+.serif{font-family:'Playfair Display',serif;font-weight:400}
+
+.nav{position:sticky;top:0;z-index:20;padding:18px 4vw;display:flex;align-items:center;justify-content:space-between;background:#171513;color:#fff}
+.logo img{height:44px;width:auto;object-fit:contain}
+.back{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.9}
+.back:hover{opacity:1}
+
+.head{padding:70px 7vw 30px;text-align:center}
+.kicker{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#806c57;margin-bottom:16px}
+.title{font-size:clamp(38px,5.5vw,62px);line-height:1;letter-spacing:-.03em;margin:0 0 16px}
+.head p{max-width:520px;margin:0 auto;font-size:14px;line-height:1.8;color:#544d44}
+
+form{max-width:640px;margin:0 auto;padding:20px 7vw 100px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field{margin-bottom:22px}
+.field.full{grid-column:1/-1}
+label{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#806c57;margin-bottom:8px}
+input,select,textarea{width:100%;padding:13px 16px;border-radius:10px;border:1px solid var(--line);background:var(--white);font-family:inherit;font-size:14px;color:var(--ink)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--terra)}
+textarea{resize:vertical;min-height:100px}
+.radio-group{display:flex;gap:14px}
+.radio-opt{flex:1;display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:13px 16px;cursor:pointer}
+.radio-opt input{width:auto}
+.radio-opt.checked{border-color:var(--terra);background:#fff}
+.hint{font-size:11px;color:#8a8072;margin-top:6px}
+.submit-btn{width:100%;padding:16px;border-radius:999px;border:1px solid var(--ink);background:var(--ink);color:#fff;font-family:inherit;font-size:12px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:.25s}
+.submit-btn:hover{background:var(--terra);border-color:var(--terra)}
+.submit-btn:disabled{opacity:.5;cursor:not-allowed}
+.msg{text-align:center;padding:16px;border-radius:10px;margin-bottom:20px;font-size:13px;display:none}
+.msg.show{display:block}
+.msg.ok{background:#e7efe4;color:var(--green)}
+.msg.err{background:#f6e3dd;color:var(--terra)}
+
+footer{background:#11100e;color:#8e8a82;padding:40px 7vw;text-align:center;font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+
+@media(max-width:700px){.row{grid-template-columns:1fr}.nav{padding:16px 5vw}.logo img{height:38px}.head{padding:55px 5vw 25px}form{padding:15px 5vw 80px}}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a class="logo" href="index.html"><img src="images/logo-casa-rios.svg" alt="Casa Rios Restaurante"></a>
+  <a class="back" href="index.html">← Voltar ao site</a>
+</nav>
+
+<header class="head">
+  <div class="kicker">Eventos</div>
+  <h1 class="title serif">Realizar um evento</h1>
+  <p>Conte pra gente os detalhes da sua celebração e nossa equipe entra em contato para confirmar tudo.</p>
+</header>
+
+<form id="eventForm" novalidate>
+  <p class="msg" id="formMsg"></p>
+
+  <div class="row">
+    <div class="field">
+      <label for="nome">Nome</label>
+      <input type="text" id="nome" required>
+    </div>
+    <div class="field">
+      <label for="email">Email</label>
+      <input type="email" id="email" required>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="field">
+      <label for="celular">Celular</label>
+      <input type="tel" id="celular" placeholder="(11) 90000-0000" required>
+    </div>
+    <div class="field">
+      <label for="pessoas">Quantidade de pessoas</label>
+      <input type="number" id="pessoas" min="1" required>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="field">
+      <label for="data">Data do evento</label>
+      <input type="date" id="data" required>
+      <p class="hint">Abrimos de quarta a domingo.</p>
+    </div>
+    <div class="field">
+      <label for="horario">Horário</label>
+      <select id="horario" required>
+        <option value="">Selecione a data primeiro</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="field">
+      <label for="tipoEvento">Tipo de evento</label>
+      <select id="tipoEvento" required>
+        <option value="">-- Tipo de Evento --</option>
+        <option>Aniversário</option>
+        <option>Casamento</option>
+        <option>Empresarial</option>
+        <option>Laboratório</option>
+        <option>Outros</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="bebidas">Opções de Bebidas</label>
+      <select id="bebidas" required>
+        <option value="">-- Opções de Bebidas --</option>
+        <option>Cerveja e Vinhos + não alcoólicos</option>
+        <option>Cervejas, vinhos e drinks + não alcoólicos</option>
+        <option>Apenas drinks + não alcoólicos</option>
+        <option>Apenas vinho + não alcoólicos</option>
+        <option>Apenas cerveja + não alcoólicos</option>
+        <option>Apenas opções não alcoólicas</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="field full">
+    <label>Telão/projetor?</label>
+    <div class="radio-group">
+      <label class="radio-opt"><input type="radio" name="telao" value="sim"> Sim</label>
+      <label class="radio-opt"><input type="radio" name="telao" value="nao" checked> Não</label>
+    </div>
+  </div>
+
+  <div class="field full">
+    <label for="restricao">Restrição alimentar</label>
+    <input type="text" id="restricao" placeholder="Ex: vegetariano, alergia a frutos do mar…">
+  </div>
+
+  <div class="field full">
+    <label for="observacao">Observação</label>
+    <textarea id="observacao" placeholder="Conte mais detalhes sobre o seu evento…"></textarea>
+  </div>
+
+  <button type="submit" class="submit-btn" id="submitBtn">Enviar solicitação →</button>
+</form>
+
+<footer>© 2026 Casa Rios. Todos os direitos reservados.</footer>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const sb = createClient(
+  'https://inffrqoxfkgsgdxnxlss.supabase.co',
+  'sb_publishable_p0WfBZ7-ZtM3bZZDZeiplg_rZ0SjZhk'
+);
+
+// 0=domingo … 6=sábado. Fechado seg(1) e ter(2).
+const HOURS = {
+  3: [['19:00','23:00']],
+  4: [['19:00','23:00']],
+  5: [['12:00','15:30'],['19:00','23:00']],
+  6: [['12:00','16:30'],['19:00','23:00']],
+  0: [['09:00','16:00']],
+};
+
+function timeToMinutes(t){ const [h,m]=t.split(':').map(Number); return h*60+m; }
+function minutesToTime(m){ const h=String(Math.floor(m/60)).padStart(2,'0'); const mm=String(m%60).padStart(2,'0'); return `${h}:${mm}`; }
+
+function buildSlots(day){
+  const ranges = HOURS[day];
+  if (!ranges) return [];
+  const slots = [];
+  ranges.forEach(([start,end])=>{
+    let m = timeToMinutes(start);
+    const endM = timeToMinutes(end);
+    while (m <= endM){
+      slots.push(minutesToTime(m));
+      m += 30;
+    }
+  });
+  return slots;
+}
+
+const dataInput = document.getElementById('data');
+const horarioSelect = document.getElementById('horario');
+const formMsg = document.getElementById('formMsg');
+
+dataInput.addEventListener('input', () => {
+  formMsg.classList.remove('show');
+  if (!dataInput.value){ horarioSelect.innerHTML = '<option value="">Selecione a data primeiro</option>'; return; }
+  const [y,mo,d] = dataInput.value.split('-').map(Number);
+  const day = new Date(y, mo-1, d).getDay();
+  const slots = buildSlots(day);
+  if (!slots.length){
+    horarioSelect.innerHTML = '<option value="">Fechado nesse dia</option>';
+    formMsg.textContent = 'A Casa Rios não abre nesse dia. Escolha de quarta a domingo.';
+    formMsg.className = 'msg err show';
+    dataInput.value = '';
+    return;
+  }
+  horarioSelect.innerHTML = '<option value="">Selecione um horário</option>' + slots.map(s => `<option>${s}</option>`).join('');
+});
+
+const form = document.getElementById('eventForm');
+const submitBtn = document.getElementById('submitBtn');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  formMsg.classList.remove('show');
+
+  const payload = {
+    nome: document.getElementById('nome').value.trim(),
+    email: document.getElementById('email').value.trim(),
+    celular: document.getElementById('celular').value.trim(),
+    quantidade_pessoas: parseInt(document.getElementById('pessoas').value, 10),
+    data_evento: dataInput.value,
+    horario: horarioSelect.value,
+    tipo_evento: document.getElementById('tipoEvento').value,
+    telao: document.querySelector('input[name="telao"]:checked').value === 'sim',
+    restricao_alimentar: document.getElementById('restricao').value.trim() || null,
+    opcoes_bebida: document.getElementById('bebidas').value,
+    observacao: document.getElementById('observacao').value.trim() || null,
+  };
+
+  if (!payload.data_evento || !payload.horario || !payload.tipo_evento || !payload.opcoes_bebida){
+    formMsg.textContent = 'Preencha todos os campos obrigatórios.';
+    formMsg.className = 'msg err show';
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Enviando…';
+
+  const { error } = await sb.from('casa_rios_event_requests').insert(payload);
+
+  if (error){
+    formMsg.textContent = 'Não foi possível enviar. Tente novamente em instantes.';
+    formMsg.className = 'msg err show';
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Enviar solicitação →';
+    return;
+  }
+
+  form.reset();
+  horarioSelect.innerHTML = '<option value="">Selecione a data primeiro</option>';
+  formMsg.textContent = 'Solicitação enviada! Nossa equipe vai entrar em contato para confirmar os detalhes.';
+  formMsg.className = 'msg ok show';
+  submitBtn.disabled = false;
+  submitBtn.textContent = 'Enviar solicitação →';
+});
+</script>
+</body>
+</html>
