@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Cardápio da Casa Rios — cozinha brasileira contemporânea ao redor do fogo, em Pinheiros, São Paulo.">
+<title>Cardápio — Casa Rios</title>
+<link rel="icon" href="images/logo-casa-rios.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#191714;--cream:#f1eadc;--paper:#f7f2e8;--terra:#a94f36;--green:#24352b;--line:rgba(25,23,20,.18);--white:#fffaf0}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif}
+a{color:inherit;text-decoration:none}
+img{display:block;width:100%;height:100%;object-fit:contain}
+.serif{font-family:'Playfair Display',serif;font-weight:400}
+
+.nav{position:sticky;top:0;z-index:20;padding:18px 4vw;display:flex;align-items:center;justify-content:space-between;background:#171513;color:#fff}
+.logo{display:block;line-height:0}
+.logo img{height:44px;width:auto;object-fit:contain}
+.back{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.9}
+.back:hover{opacity:1}
+
+.head{padding:80px 7vw 40px;text-align:center}
+.kicker{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#806c57;margin-bottom:16px}
+.title{font-size:clamp(42px,6vw,74px);line-height:.98;letter-spacing:-.035em;margin:0 0 18px}
+.head p{max-width:520px;margin:0 auto;font-size:15px;line-height:1.8;color:#544d44}
+
+.controls{position:sticky;top:80px;z-index:15;background:var(--paper);padding:20px 7vw;border-bottom:1px solid var(--line)}
+.search{position:relative;max-width:520px;margin:0 auto 18px}
+.search input{width:100%;padding:14px 20px 14px 44px;border-radius:999px;border:1px solid var(--line);background:var(--white);font-family:inherit;font-size:14px;color:var(--ink)}
+.search input:focus{outline:none;border-color:var(--terra)}
+.search svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);opacity:.5}
+.cats{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:900px;margin:0 auto}
+.cat-btn{border:1px solid var(--line);background:transparent;padding:9px 18px;border-radius:999px;font-family:inherit;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);cursor:pointer;transition:.25s}
+.cat-btn:hover{border-color:var(--terra);color:var(--terra)}
+.cat-btn.active{background:var(--ink);border-color:var(--ink);color:#fff}
+
+.menu-wrap{padding:50px 7vw 120px;max-width:1000px;margin:0 auto}
+.group{margin-bottom:60px}
+.group-title{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--terra);border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:6px}
+.item{display:flex;justify-content:space-between;gap:20px;padding:24px 0;border-bottom:1px solid var(--line)}
+.item-info{max-width:640px}
+.item-name{font-family:'Playfair Display',serif;font-size:21px;margin:0 0 8px}
+.item-desc{font-size:13px;line-height:1.7;color:#6b6255}
+.item-price{font-family:'Playfair Display',serif;font-size:19px;white-space:nowrap;color:var(--terra)}
+.empty{text-align:center;padding:60px 0;color:#8a8072;display:none}
+.empty.show{display:block}
+
+footer{background:#11100e;color:#e9e0d2;padding:40px 7vw;text-align:center;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8e8a82}
+
+@media(max-width:800px){
+  .nav{padding:16px 5vw}
+  .logo img{height:38px}
+  .head{padding:60px 5vw 30px}
+  .controls{padding:16px 5vw;top:74px}
+  .menu-wrap{padding:40px 5vw 90px}
+  .item{flex-direction:column;gap:8px}
+  .item-price{order:-1}
+}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a class="logo" href="index.html"><img src="images/logo-casa-rios.svg" alt="Casa Rios Restaurante"></a>
+  <a class="back" href="index.html">← Voltar ao site</a>
+</nav>
+
+<header class="head">
+  <div class="kicker">Casa Rios</div>
+  <h1 class="title serif">Cardápio</h1>
+  <p>Uma cozinha brasileira que acompanha o fogo, o produto e as estações. Pesquise um prato ou explore por categoria.</p>
+</header>
+
+<div class="controls">
+  <div class="search">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+    <input type="text" id="searchInput" placeholder="Buscar prato, ingrediente ou bebida…">
+  </div>
+  <div class="cats" id="catButtons"></div>
+</div>
+
+<main class="menu-wrap" id="menuWrap"></main>
+<p class="empty" id="emptyState">Nenhum item encontrado.</p>
+
+<footer>© 2026 Casa Rios. Todos os direitos reservados.</footer>
+
+<script>
+const MENU = [
+  {cat:"Lenha", items:[
+    {name:"Coxinha de galinha", price:46, desc:"Galinha caipira na brasa e defumada em laranjeira e espuma de requeijão defumado"},
+    {name:"Arroz de cupim", price:109, desc:"Arroz cateto caldoso no caldo de cupim defumado, cupim laqueado, manteiga queimada, avelã, maionese de limão e alho negro"},
+    {name:"Broa de milho, manteiga e pimentão", price:49, desc:"Manteiga da casa defumada, pó de carvão e sal defumado, escabeche de pimentão na páprica e limão-tahiti"},
+    {name:"Abóbora, manteiga queimada, harissa", price:68, desc:"Abóbora assada e caramelizada na lenha, glace de abóbora e especiarias, béarnaise de manteiga queimada e harissa"},
+    {name:"Polvo, sobrasada e shissô", price:129, desc:"Fregola em caldo de sobrasada jais, polvo laqueado, óleo de shissô, pimenta-de-cheiro em conserva"},
+    {name:"Feijão, porco e couve", price:71, desc:"Feijão olho de cabra em caldo de porco na lenha, guanciale de porco preto Jais, cavolo nero e pimenta de cheiro"},
+  ]},
+  {cat:"Defumação", items:[
+    {name:"Coxinha de galinha", price:46, desc:"Galinha caipira na brasa e defumada em laranjeira e espuma de requeijão defumado"},
+    {name:"Arroz de cupim", price:109, desc:"Arroz cateto caldoso no caldo de cupim defumado, cupim laqueado, manteiga queimada, avelã, maionese de limão e alho negro"},
+  ]},
+  {cat:"Brasa", items:[
+    {name:"Milho jovem na brasa", price:49, desc:"Maionese de canela, pó de canjiquinha e cebolete"},
+    {name:"Brócolis e amendoim", price:65, desc:"Ajo blanco de amendoim, brócolis na brasa, gremolata de nirá e limão cravo, óleo de coentrão"},
+    {name:"Brioche e cavaquinha", price:135, desc:"Brioche tostado em manteiga defumada, cavaquinha na brasa em maionese de crustáceo, cebolete e limão tahiti"},
+    {name:"Cogumelos", price:91, desc:"Shimeji na brasa em emulsão de garum, gema, vinagre de algas, purê de cogumelos e picles de cebolinha"},
+    {name:"Peixe e pupunha", price:115, desc:"Peixe na brasa e pupunha grelhada, caldo moquecado de camarão, óleo de coentrão"},
+  ]},
+  {cat:"Grelhados", items:[
+    {name:"Chorizo", price:189, desc:"Chorizo Beef passion 350gr - wagyu cruzado 24 meses (nível 2) - demi glace com manteiga queimada e tucupi preto"},
+    {name:"Prime rib maiale canastra", price:125, desc:"Prime rib Fabene 400gr - maiale canastra 12 meses - demi glace de porco com óleo de karashi"},
+  ]},
+  {cat:"Acompanhamentos", items:[
+    {name:"Escabeche de pimentão", price:30, desc:"Pimentão vermelho na brasa, tomilho, tahiti e páprica"},
+    {name:"Mil folhas de mandioca", price:35, desc:"Bernaise de manteiga queimada, tahiti e pó de cinzas"},
+    {name:"Mix de folhas", price:27, desc:"Mix de baby leafs da Kotie, radicchio, picles de cebola, vinagrete de pimenta de cheiro e kombu"},
+  ]},
+  {cat:"Sobremesas", items:[
+    {name:"Torta de queijo de ovelha", price:45, desc:"Goiabada na lenha com especiarias amazônicas"},
+    {name:"Chocolate com amendoim", price:49, desc:"Cremeux de praline de amendoim, ganache de chocolate, crumble de cacau, amendoim caramelizado, espuma de chocolate"},
+  ]},
+  {cat:"Espumantes", items:[
+    {name:"Ferrari Maximum Brut", price:535, desc:"Chardonnay - Trento/Itália"},
+    {name:"Raventós de Nit Rosé", price:508, desc:"Xarel·lo e Macabeo - Catalunha/Espanha"},
+    {name:"François Labet Crémant", price:410, desc:"Borgonha/França"},
+    {name:"Hermann Lírica Crua", price:213, desc:"Sangiovese e Pinot Noir - Serra Gaúcha/Brasil"},
+    {name:"Chardo da Lata", price:230, desc:"Chardonnay - Serra Gaúcha/Brasil"},
+    {name:"Hidromel Borbulhante de Jataí", price:185, desc:"São Paulo – Brasil"},
+    {name:"Manus Virgo Vermentino Brut", price:193, desc:"Vermentino - Encruzilhada do Sul/Brasil"},
+    {name:"Sabina Extra Brut Rosé", price:238, desc:"Serra Gaúcha/Brasil"},
+  ]},
+  {cat:"Brancos", items:[
+    {name:"Loureiro muros antigos", price:205, desc:"Loureiro - Minho/Portugal"},
+    {name:"Château des Gillières Muscadet", price:225, desc:"Melon - Nantes/França"},
+    {name:"Sal Albariño", price:277, desc:"Alvarinho - Rías Baixas/Espanha"},
+    {name:"Chablis Vieilles Vignes", price:445, desc:"Chardonnay - Borgonha/França"},
+    {name:"Cuvée du Clocher", price:591, desc:"Chardonnay - Borgonha/França"},
+    {name:"Anselmi San Vincenzo", price:408, desc:"Garganera, Sauvignon, Chardonnay - Veneto/Itália"},
+    {name:"Luis Cañas Viñas Viejas", price:348, desc:"Viura, Malvasia Riojana - Rioja Alavesa/Espanha"},
+    {name:"Conde de Vimioso Sommelier", price:245, desc:"Arinto, Fernão Dias, Verdejo - Tejo/Portugal"},
+    {name:"The Green Hill", price:238, desc:"Riesling - Rheinhessen/Alemanha"},
+    {name:"Villard Semillon JCV", price:315, desc:"Semillon - Casablanca/Chile"},
+    {name:"Scritch 2023", price:510, desc:"Aligoté - Borgonha/França"},
+    {name:"Les Roques 2022", price:386, desc:"Roussanne - Languedoc/França"},
+    {name:"Merus DOC Sudtirol", price:322, desc:"Gewurztraminer - Trentino/Itália"},
+    {name:"Etna Bianco Superiore", price:395, desc:"Carricante - Sicília/Itália"},
+    {name:"Bouza Albariño", price:357, desc:"Alvarinho - Montevideo/Uruguai"},
+    {name:"Domaine Du Salvard Cheverny", price:286, desc:"Sauvignon blanc, Chardonnay - Loire/França"},
+    {name:"Quinta dos Roques Encruzado", price:355, desc:"Encruzado - Dão/Portugal"},
+    {name:"Manus Clássico Chardonnay", price:251, desc:"Chardonnay - Encruzilhada do Sul/Brasil"},
+    {name:"Hiedler Grüner Veltliner Löss", price:363, desc:"Grüner Veltliner - Kamptal/Áustria"},
+    {name:"Rocamadre", price:274, desc:"Criolla blanca - Paraje Altamira/Argentina"},
+    {name:"UVVA Viognier", price:235, desc:"Viognier - Chapada Diamantina (BA)/Brasil"},
+  ]},
+  {cat:"Rosé", items:[
+    {name:"Proyecto las compuertas", price:253, desc:"Criolla Chica - Mendoza/Argentina"},
+  ]},
+  {cat:"Laranjas", items:[
+    {name:"Tinaja", price:235, desc:"Moscatel de Alexandria - Bio Valley/Chile"},
+    {name:"Orange from the basement", price:235, desc:"Pinot Grigio - Veneto/Itália"},
+  ]},
+  {cat:"Tintos", items:[
+    {name:"Paul Mas Terrasses du Larzac", price:355, desc:"Syrah, Grenache, Mourvèdre - Languedoc/França"},
+    {name:"Inframundo Blend 2022", price:264, desc:"Petit Verdot, Malbec, Cabernet Franc - Argentina"},
+    {name:"Soridigiul DOC Superiore", price:464, desc:"Freisa - Piemonte/Itália"},
+    {name:"Le Petit Comptoir Rouge", price:260, desc:"Merlot e Cabernet Franc - Bordeaux/França"},
+    {name:"Jardim de ostera", price:274, desc:"Cabernet Franc - Serra Gaúcha/Brasil"},
+    {name:"Anselmo Mendes Pardusco Private", price:565, desc:"Alvarelhão - Vinho Verde/Portugal"},
+    {name:"Viñedos de Alcohuaz GRUS", price:467, desc:"Syrah, Petite Sirah, Garnacha - Alcohuaz/Chile"},
+    {name:"Gonzalo Guzmán Mencia El Afán", price:437, desc:"Mencia - Maipo/Chile"},
+    {name:"Château Montus Madiran", price:871, desc:"Tannat, Cabernet Sauvignon - Madiran/França"},
+    {name:"J de José de Sousa", price:747, desc:"Grand Noir, Touriga Franca e Nacional - Alentejo/Portugal"},
+    {name:"Guaspari Porcellino", price:204, desc:"Syrah, Nebbiolo - Espírito Santo do Pinhal (SP)/Brasil"},
+  ]},
+  {cat:"Fortificados", items:[
+    {name:"Château de Geraud Monbazillac 2014", price:37, desc:"Taça 80ml"},
+  ]},
+  {cat:"Cerveja", items:[
+    {name:"Stella Artois", price:19, desc:"330ml"},
+    {name:"Hocus Pocus", price:38, desc:"Aura - Session Hazy IPA - 355ml"},
+    {name:"Trilha Melonrise", price:38, desc:"Juicy IPA - 7,0% - 350ml"},
+    {name:"Trilha Mamangava", price:35, desc:"Fruit Sour - 5,3% - 350ml"},
+    {name:"Trilha Modern pils", price:33, desc:"Pilsen não filtrada - 5,7% - 350ml"},
+  ]},
+  {cat:"Cidra", items:[
+    {name:"Cidra Ça", price:29, desc:"Estilo britânica - 6,0% - 330ml"},
+  ]},
+  {cat:"Carta de Drinks", items:[
+    {name:"Cati", price:49, desc:"Gin infusionado com shissô, xarope de abacaxi assado, suco de limão tahiti, água tônica"},
+    {name:"Lagar", price:42, desc:"Vodka infusionada com uva verde, cordial de uva, vinho branco"},
+    {name:"Âmbar", price:49, desc:"Bourbon, vermouth tinto, caldo de caju com gengibre e especiarias, suco de limão siciliano"},
+    {name:"Caldeirada no samba", price:45, desc:"Cachaça prata, vermouth tinto, shrub de pimentão assado e pimenta biquinho defumada, sal com coentro em grão"},
+    {name:"Escarlete", price:45, desc:"Rum branco, Cynar infusionado com frutas vermelhas, suco de toranja assada, amaro, xarope de açúcar"},
+  ]},
+  {cat:"Não alcoólicos", items:[
+    {name:"Água", price:9, desc:"Com e sem gás"},
+    {name:"San Pellegrino", price:19, desc:""},
+    {name:"Refrigerante", price:11, desc:""},
+    {name:"Sirigaita", price:21, desc:"Puré de acerola e morango, xarope de hortelã, água com gás"},
+  ]},
+  {cat:"Café", items:[
+    {name:"Coado", price:17, desc:"Sul de Minas — torra média / acidez alta / corpo médio"},
+  ]},
+];
+
+const wrap = document.getElementById('menuWrap');
+const catButtons = document.getElementById('catButtons');
+const searchInput = document.getElementById('searchInput');
+const emptyState = document.getElementById('emptyState');
+let activeCat = 'Todos';
+
+function money(v){ return 'R$ ' + v.toFixed(2).replace('.', ',').replace(',00',''); }
+
+function render(){
+  const q = searchInput.value.trim().toLowerCase();
+  wrap.innerHTML = '';
+  let totalShown = 0;
+  MENU.forEach(group => {
+    if (activeCat !== 'Todos' && group.cat !== activeCat) return;
+    const filtered = group.items.filter(it =>
+      !q || it.name.toLowerCase().includes(q) || (it.desc && it.desc.toLowerCase().includes(q))
+    );
+    if (!filtered.length) return;
+    totalShown += filtered.length;
+    const section = document.createElement('div');
+    section.className = 'group';
+    section.innerHTML = `<div class="group-title">${group.cat}</div>` + filtered.map(it => `
+      <div class="item">
+        <div class="item-info">
+          <p class="item-name serif">${it.name}</p>
+          ${it.desc ? `<p class="item-desc">${it.desc}</p>` : ''}
+        </div>
+        <div class="item-price">${money(it.price)}</div>
+      </div>
+    `).join('');
+    wrap.appendChild(section);
+  });
+  emptyState.classList.toggle('show', totalShown === 0);
+}
+
+const cats = ['Todos', ...MENU.map(g => g.cat)];
+catButtons.innerHTML = cats.map(c => `<button class="cat-btn${c==='Todos'?' active':''}" data-cat="${c}">${c}</button>`).join('');
+catButtons.querySelectorAll('.cat-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    catButtons.querySelector('.active')?.classList.remove('active');
+    btn.classList.add('active');
+    activeCat = btn.dataset.cat;
+    render();
+  });
+});
+searchInput.addEventListener('input', render);
+render();
+</script>
+</body>
+</html>
