@@ -28,12 +28,20 @@ img{display:block;width:100%;height:100%;object-fit:contain}
 .title{font-size:clamp(42px,6vw,74px);line-height:.98;letter-spacing:-.035em;margin:0 0 18px}
 .head p{max-width:520px;margin:0 auto;font-size:15px;line-height:1.8;color:#544d44}
 
-.controls{position:sticky;top:80px;z-index:15;background:var(--paper);padding:20px 7vw;border-bottom:1px solid var(--line)}
-.search{position:relative;max-width:520px;margin:0 auto 18px}
+.controls{position:sticky;top:80px;z-index:15;background:var(--paper);padding:16px 7vw;border-bottom:1px solid var(--line)}
+.controls-bar{display:flex;gap:12px;align-items:center;max-width:900px;margin:0 auto}
+.search{position:relative;flex:1}
 .search input{width:100%;padding:14px 20px 14px 44px;border-radius:999px;border:1px solid var(--line);background:var(--white);font-family:inherit;font-size:14px;color:var(--ink)}
 .search input:focus{outline:none;border-color:var(--terra)}
 .search svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);opacity:.5}
-.cats{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:900px;margin:0 auto}
+.cats-toggle{flex:none;display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--white);padding:13px 20px;border-radius:999px;font-family:inherit;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);cursor:pointer;transition:.25s}
+.cats-toggle:hover{border-color:var(--terra);color:var(--terra)}
+.cats-toggle.open{background:var(--ink);border-color:var(--ink);color:#fff}
+.cats-toggle svg{transition:transform .25s}
+.cats-toggle.open svg{transform:rotate(180deg)}
+.cats-toggle .cat-current{max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cats{display:none;flex-wrap:wrap;gap:10px;justify-content:center;max-width:900px;margin:16px auto 0;padding-top:16px;border-top:1px solid var(--line)}
+.cats.open{display:flex}
 .cat-btn{border:1px solid var(--line);background:transparent;padding:9px 18px;border-radius:999px;font-family:inherit;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);cursor:pointer;transition:.25s}
 .cat-btn:hover{border-color:var(--terra);color:var(--terra)}
 .cat-btn.active{background:var(--ink);border-color:var(--ink);color:#fff}
@@ -75,9 +83,15 @@ footer{background:#11100e;color:#e9e0d2;padding:40px 7vw;text-align:center;font-
 </header>
 
 <div class="controls">
-  <div class="search">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-    <input type="text" id="searchInput" placeholder="Buscar prato, ingrediente ou bebida…">
+  <div class="controls-bar">
+    <div class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" id="searchInput" placeholder="Buscar prato, ingrediente ou bebida…">
+    </div>
+    <button class="cats-toggle" id="catsToggle" type="button" aria-expanded="false">
+      <span class="cat-current" id="catCurrent">Categorias</span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+    </button>
   </div>
   <div class="cats" id="catButtons"></div>
 </div>
@@ -241,15 +255,38 @@ function render(){
 }
 
 const cats = ['Todos', ...MENU.map(g => g.cat)];
+const catsToggle = document.getElementById('catsToggle');
+const catCurrent = document.getElementById('catCurrent');
+
 catButtons.innerHTML = cats.map(c => `<button class="cat-btn${c==='Todos'?' active':''}" data-cat="${c}">${c}</button>`).join('');
 catButtons.querySelectorAll('.cat-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     catButtons.querySelector('.active')?.classList.remove('active');
     btn.classList.add('active');
     activeCat = btn.dataset.cat;
+    catCurrent.textContent = activeCat === 'Todos' ? 'Categorias' : activeCat;
     render();
+    closeCats();
   });
 });
+
+function openCats(){
+  catButtons.classList.add('open');
+  catsToggle.classList.add('open');
+  catsToggle.setAttribute('aria-expanded', 'true');
+}
+function closeCats(){
+  catButtons.classList.remove('open');
+  catsToggle.classList.remove('open');
+  catsToggle.setAttribute('aria-expanded', 'false');
+}
+catsToggle.addEventListener('click', () => {
+  catButtons.classList.contains('open') ? closeCats() : openCats();
+});
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.controls') ) closeCats();
+});
+
 searchInput.addEventListener('input', render);
 render();
 </script>
